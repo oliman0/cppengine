@@ -42,11 +42,12 @@ int main()
 	objects.push_back(Object(glm::vec3(20.0f, 0.0f, 10.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
 	objects.push_back(Object(glm::vec3(30.0f, 0.0f, 10.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
 
-	objects.push_back(Object(glm::vec3(-50.0f, 0.0f, -50.0f), glm::vec3(100.0f, 0.1f, 100.0f), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), floorMat));
+	objects.push_back(Object(glm::vec3(-50.0f, 0.0f, -50.0f), glm::vec3(100.0f, 0.1f, 100.0f), "./res/textures/checkfloor.png", floorMat));
 
-	std::vector<Light> lights;
+	std::vector<PointLight> pointLights;
 	
-	lights.push_back(Light(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.1f), glm::vec3(0.5f), glm::vec3(1.0f), 1.0f, 0.022f, 0.0019f));
+	//lights.push_back(PointLight(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.1f), glm::vec3(0.5f), glm::vec3(1.0f), 1.0f, 0.022f, 0.0019f));
+	pointLights.push_back(PointLight(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.1f), glm::vec3(0.5f), glm::vec3(1.0f), 1.0f, 0.014f, 0.0007f));
 
 	while (!window.ShouldClose()) {
 		framebuffer.Bind();
@@ -89,11 +90,11 @@ int main()
         camera.AddPitchYaw(window.GetMouseOffset());
         camera.Update();
 	
-		for (int i = 0; i < lights.size(); i++) {
-			lights[i].SetShaderData(shader, i);
-			lights[i].Draw(lightShader);
+		for (int i = 0; i < pointLights.size(); i++) {
+			pointLights[i].SetShaderData(shader, i);
+			pointLights[i].Draw(lightShader);
 		}
-		shader.SetUniform("numOfLights", (int)lights.size());
+		shader.SetUniform("numOfPointLights", (int)pointLights.size());
 
 		for (int i = 0; i < objects.size(); i++) {
 			objects[i].Draw(shader);
@@ -116,7 +117,7 @@ int main()
 		objects[i].Delete();
 	}
 
-	for (int i = 0; i < lights.size(); i++) {
-		lights[i].Delete();
+	for (int i = 0; i < pointLights.size(); i++) {
+		pointLights[i].Delete();
 	}
 }

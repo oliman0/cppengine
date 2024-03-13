@@ -1,10 +1,13 @@
 #include "light.h"
 
-Light::Light(glm::vec3 position, glm::vec3 size, glm::vec4 colour, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float attenuationConstant, float attenuationLinear, float attenuationQuadratic) : Mesh(position, size, colour), ambient(ambient), diffuse(diffuse), specular(specular),
+// PointLight
+
+PointLight::PointLight(glm::vec3 position, glm::vec3 size, glm::vec4 colour, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float attenuationConstant, float attenuationLinear, float attenuationQuadratic) : Mesh(position, size, colour), ambient(ambient), diffuse(diffuse), specular(specular),
 																																																			   attenuationConstant(attenuationConstant), attenuationLinear(attenuationLinear), attenuationQuadratic(attenuationQuadratic) {}
 
-void Light::SetShaderData(Shader& shader, unsigned int lightNum) {
+void PointLight::SetShaderData(Shader& shader, unsigned int lightNum) {
 	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].position", position);
+
 	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].ambient", ambient);
 	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].diffuse", diffuse);
 	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].specular", specular);
@@ -12,4 +15,40 @@ void Light::SetShaderData(Shader& shader, unsigned int lightNum) {
 	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].constant", attenuationConstant);
 	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].linear", attenuationLinear);
 	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].quadratic", attenuationQuadratic);
+}
+
+// Directional Light
+
+DirectionalLight::DirectionalLight(glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular) : direction(direction), ambient(ambient), diffuse(diffuse), specular(specular) {}
+
+void DirectionalLight::SetShaderData(Shader& shader) {
+	shader.SetUniform("directionalLight.direction", direction);
+
+	shader.SetUniform("directionalLight.ambient", ambient);
+	shader.SetUniform("directionalLight.diffuse", diffuse);
+	shader.SetUniform("directionalLight.specular", specular);
+}
+
+// Spot Light
+
+SpotLight::SpotLight(glm::vec3 position, glm::vec3 size, glm::vec4 meshColour, glm::vec3 direction, float innerCutOff, float outerCutOff, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float attenuationConstant, float attenuationLinear, float attenuationQuadratic) : Mesh(position, size, meshColour), direction(direction),
+																																																	  innerCutOff(glm::cos(glm::radians(innerCutOff))), outerCutOff(glm::cos(glm::radians(outerCutOff))),
+																																																	  ambient(ambient), diffuse(diffuse), specular(specular),
+																																																	  attenuationConstant(attenuationConstant), attenuationLinear(attenuationLinear), attenuationQuadratic(attenuationQuadratic) {}
+
+void SpotLight::SetDirection(glm::vec3 dir) { direction = dir; }
+
+void SpotLight::SetShaderData(Shader& shader, unsigned int lightNum) {
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].position", position);
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].direction", direction);
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].innerCutOff", innerCutOff);
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].outerCutOff", outerCutOff);
+
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].ambient", ambient);
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].diffuse", diffuse);
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].specular", specular);
+
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].constant", attenuationConstant);
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].linear", attenuationLinear);
+	shader.SetUniform("spotLights[" + std::to_string(lightNum) + "].quadratic", attenuationQuadratic);
 }

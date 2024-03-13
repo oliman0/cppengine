@@ -18,6 +18,7 @@ public:
 	void AddPitchYaw(glm::vec2 vec);
 
 	glm::vec3 GetFront();
+	glm::vec3 GetLookFront();
 	glm::vec3 GetUp();
 
 	void Update();
@@ -28,7 +29,7 @@ private:
 	glm::vec3 position;
 	glm::vec3 up;
 	glm::vec3 front;
-	glm::vec3 look_front;
+	glm::vec3 lookFront;
 
 	float yaw;
 	float pitch;

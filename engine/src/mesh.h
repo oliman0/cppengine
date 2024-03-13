@@ -13,6 +13,7 @@ class Mesh
 {
 public:
 	Mesh(glm::vec3 postition, glm::vec3 size, const char* texture);
+	Mesh(glm::vec3 postition, glm::vec3 size, const char* texture, float texRepeat);
 	Mesh(glm::vec3 postition, glm::vec3 size, glm::vec4 colour);
 	~Mesh() {}
 
