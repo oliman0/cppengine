@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <fstream>
+#include <string>
 
 #include <GLAD/glad.h>
 #include <GLM/glm.hpp>
@@ -21,6 +22,32 @@ struct FontCharacter {
 	GLfloat width;
 	GLfloat height;
 };
+
+//struct Sprite {
+//	Sprite(GLuint texture);
+//	Sprite(glm::vec4 colour);
+//
+//	GLuint texture;
+//	glm::vec4 colour;
+//
+//	bool usingTexture;
+//};
+//
+//struct Text {
+//	Text(const char* str, float textSize, glm::vec4 colour);
+//	Text(const char* str, float textSize, glm::vec4 colour, glm::vec4 bgColour, glm::vec2 padding);
+//	Text(const char* str, float textSize, glm::vec4 colour, GLuint texture, glm::vec2 padding);
+//
+//	std::string str;
+//	glm::vec4 colour;
+//	float textSize;
+//
+//	GLuint bgTexture;
+//	glm::vec4 bgColour;
+//	glm::vec2 padding;
+//
+//	bool usingTexture;
+//};
 
 class UI {
 public:
@@ -45,9 +72,6 @@ private:
 
 	std::vector<FontCharacter> font;
 	std::vector<GLuint> icons;
-
-	//elements
-	//windows
 
 	VAO vao;
 	IBO ibo;

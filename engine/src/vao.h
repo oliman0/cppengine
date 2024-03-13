@@ -7,7 +7,7 @@ class VAO {
 public:
 	VAO();
 	VAO(GLfloat* data, int dataLen, int numOfVertices, int numOfAttribs, int* attribSizes);
-	~VAO();
+	~VAO() {}
 
 	void Create(GLfloat* data, int dataLen, int numOfVertices, int numOfAttribs, int* attribSizes);
 	void Delete();
@@ -27,7 +27,7 @@ class IBO {
 public:
 	IBO();
 	IBO(GLint* data, int dataLen);
-	~IBO();
+	~IBO() {}
 
 	void Create(GLint* data, int dataLen);
 	void Delete();

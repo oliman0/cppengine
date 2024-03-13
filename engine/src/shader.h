@@ -40,6 +40,8 @@ public:
 	// Setting integers
 	void SetUniform(std::string sName, int* iValues, int iCount = 1);
 	void SetUniform(std::string sName, const int iValue);
+	void SetUniform(std::string sName, unsigned int* iValues, int iCount = 1);
+	void SetUniform(std::string sName, const unsigned int iValue);
 
 private:
 	unsigned int shaderID;

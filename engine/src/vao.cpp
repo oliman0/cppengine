@@ -4,7 +4,6 @@
 
 VAO::VAO(GLfloat* data, int dataLen, int numOfVertices, int numOfAttribs, int* attribSizes) : vao(0), vbo(0), numOfVertices(numOfVertices) { Create(data, dataLen, numOfVertices, numOfAttribs, attribSizes); }
 VAO::VAO() : vao(0), vbo(0), numOfVertices(0) {}
-VAO::~VAO() { Delete(); }
 
 void VAO::Create(GLfloat* data, int dataLen, int numOfVertices, int numOfAttribs, int* attribSizes) {
     glGenVertexArrays(1, &vao);
@@ -49,7 +48,6 @@ int VAO::NumOfVertices() { return numOfVertices; }
 
 IBO::IBO(GLint* data, int dataLen) : ibo(0), dataLen(dataLen) { Create(data, dataLen); }
 IBO::IBO() : ibo(0), dataLen(0) {}
-IBO::~IBO() { Delete(); }
 
 void IBO::Create(GLint* data, int dataLen) {
     glGenBuffers(1, &ibo);

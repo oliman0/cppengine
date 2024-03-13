@@ -3,6 +3,19 @@
 FontCharacter::FontCharacter(GLuint texID, GLfloat width, GLfloat height) : textureID(texID), width(width), height(height) {}
 void FontCharacter::Delete() { glDeleteTextures(1, &textureID); }
 
+//// Sprite
+//
+//Sprite::Sprite(GLuint texture) : texture(texture), colour(1.0), usingTexture(true) {}
+//Sprite::Sprite(glm::vec4 colour) : texture(0), colour(colour), usingTexture(false) {}
+//
+//// Text
+//
+//Text::Text(const char* str, float textSize, glm::vec4 colour) : str(str), textSize(textSize), colour(colour), padding(0.0), bgColour(0.0), bgTexture(0), usingTexture(false) {}
+//Text::Text(const char* str, float textSize, glm::vec4 colour, glm::vec4 bgColour, glm::vec2 padding) : str(str), textSize(textSize), colour(colour), padding(padding), bgColour(bgColour), bgTexture(0), usingTexture(false) {}
+//Text::Text(const char* str, float textSize, glm::vec4 colour, GLuint texture, glm::vec2 padding) : str(str), textSize(textSize), colour(colour), padding(padding), bgColour(0.0), bgTexture(texture), usingTexture(true) {}
+
+// UI System
+
 UI::UI(const char* fontPath, float scr_width, float scr_height) : uiShader("shaders/ui_shader.vert", "shaders/ui_shader.frag"), uiProjection(glm::ortho(0.0f, scr_width, 0.0f, scr_height, -1.0f, 1.0f)), cursorFree(true) {
 	for (int i = 0; i < 128; i++) {
         if (!std::fstream(std::string(fontPath) + "/" + std::to_string(i) + ".png").good()) {
@@ -43,6 +56,9 @@ UI::~UI() {
     for (int i = 0; i < icons.size(); i++) {
         glDeleteTextures(1, &icons[i]);
     }
+
+    vao.Delete();
+    ibo.Delete();
 }
 
 void UI::Draw() {

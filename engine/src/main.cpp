@@ -1,14 +1,19 @@
 #define STB_IMAGE_IMPLEMENTATION
 
+#include <vector>
+
 #include "window.h"
 #include "framebuffer.h"
-#include "mesh.h"
+#include "object.h"
+#include "light.h"
 #include "shader.h"
 #include "camera.h"
 #include "ui.h"
 
 int main()
 {
+	bool fullBright = false;
+
 	Window window("OpenGL", 1920, 1080, 10.0);
 	window.SetCursorLocked(true);
 	Framebuffer framebuffer(1920, 1080, 1920, 1080);
@@ -16,15 +21,38 @@ int main()
 	UI ui("./res/fonts/wave-standard", 1920.0f, 1080.0f);
 
 	Shader shader("shaders/shader.vert", "shaders/shader.frag");
+	Shader lightShader("shaders/light_cube.vert", "shaders/light_cube.frag");
 	shader.SetUniform("projection", glm::perspective(glm::radians(110.0f), 1920.0f / 1080.0f, 0.1f, 150.0f));
+	lightShader.SetUniform("projection", glm::perspective(glm::radians(110.0f), 1920.0f / 1080.0f, 0.1f, 150.0f));
 
 	Camera camera(glm::vec3(0.0f, 1.0f, 0.0f));
+
+	Material floorMat(glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
+	Material wallMat(glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f), 64.0f);
 		
-	Mesh mesh(glm::vec3(0.0f, 0.0f, -10.0f), glm::vec3(5.0f, 5.0f, 5.0f), "./res/textures/largecheck.png");
+	std::vector<Object> objects;
+	
+	objects.push_back(Object(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
+	objects.push_back(Object(glm::vec3(10.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
+	objects.push_back(Object(glm::vec3(20.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
+	objects.push_back(Object(glm::vec3(30.0f, 0.0f, 0.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
+
+	objects.push_back(Object(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
+	objects.push_back(Object(glm::vec3(10.0f, 0.0f, 10.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
+	objects.push_back(Object(glm::vec3(20.0f, 0.0f, 10.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
+	objects.push_back(Object(glm::vec3(30.0f, 0.0f, 10.0f), glm::vec3(10.0f, 10.0f, 0.1f), "./res/textures/largecheck.png", wallMat));
+
+	objects.push_back(Object(glm::vec3(-50.0f, 0.0f, -50.0f), glm::vec3(100.0f, 0.1f, 100.0f), glm::vec4(0.3f, 0.3f, 0.3f, 1.0f), floorMat));
+
+	std::vector<Light> lights;
+	
+	lights.push_back(Light(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.1f), glm::vec3(0.5f), glm::vec3(1.0f), 1.0f, 0.022f, 0.0019f));
 
 	while (!window.ShouldClose()) {
 		framebuffer.Bind();
 		shader.SetUniform("view", camera.View());
+		lightShader.SetUniform("view", camera.View());
+		shader.SetUniform("viewPos", camera.GetPosition());
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -51,14 +79,27 @@ int main()
 			movement -= camera.GetUp();
 		}
 
+		if (window.KeyDown(GLFW_KEY_B)) {
+			fullBright = !fullBright;
+			shader.SetUniform("fullBright", fullBright);
+		}
+
         camera.MovePosition(movement * 10.0f * window.GetDeltaTime());
 
         camera.AddPitchYaw(window.GetMouseOffset());
         camera.Update();
+	
+		for (int i = 0; i < lights.size(); i++) {
+			lights[i].SetShaderData(shader, i);
+			lights[i].Draw(lightShader);
+		}
+		shader.SetUniform("numOfLights", (int)lights.size());
 
-		mesh.Draw(shader);
+		for (int i = 0; i < objects.size(); i++) {
+			objects[i].Draw(shader);
+		}
 
-		framebuffer.Draw();
+		framebuffer.Blit();
 		framebuffer.UnBind();
 
 		ui.DrawString(("Fps: " + std::to_string(window.GetFps())).c_str(), 3.0f, glm::vec2(10.0f, 1030.0f), glm::vec4(1.0f), false);
@@ -69,5 +110,13 @@ int main()
 
 		window.SwapBuffers();
 		window.PollEvents();
+	}
+
+	for (int i = 0; i < objects.size(); i++) {
+		objects[i].Delete();
+	}
+
+	for (int i = 0; i < lights.size(); i++) {
+		lights[i].Delete();
 	}
 }

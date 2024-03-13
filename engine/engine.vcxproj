@@ -20,10 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\camera.cpp" />
+    <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\mesh.cpp" />
     <ClCompile Include="src\framebuffer.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\object.cpp" />
     <ClCompile Include="src\shader.cpp" />
     <ClCompile Include="src\texture.cpp" />
     <ClCompile Include="src\ui.cpp" />
@@ -32,8 +34,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\camera.h" />
+    <ClInclude Include="src\light.h" />
     <ClInclude Include="src\mesh.h" />
     <ClInclude Include="src\framebuffer.h" />
+    <ClInclude Include="src\object.h" />
     <ClInclude Include="src\shader.h" />
     <ClInclude Include="src\stbi.h" />
     <ClInclude Include="src\texture.h" />

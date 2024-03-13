@@ -231,3 +231,17 @@ void Shader::SetUniform(std::string sName, const int iValue)
 	int iLoc = glGetUniformLocation(shaderID, sName.c_str());
 	glUniform1i(iLoc, iValue);
 }
+
+void Shader::SetUniform(std::string sName, unsigned int* iValues, int iCount)
+{
+	glUseProgram(shaderID);
+	int iLoc = glGetUniformLocation(shaderID, sName.c_str());
+	glUniform1uiv(iLoc, iCount, iValues);
+}
+
+void Shader::SetUniform(std::string sName, const unsigned int iValue)
+{
+	glUseProgram(shaderID);
+	int iLoc = glGetUniformLocation(shaderID, sName.c_str());
+	glUniform1ui(iLoc, iValue);
+}
