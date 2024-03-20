@@ -13,6 +13,7 @@
 int main()
 {
 	bool fullBright = false;
+	bool spotLightOn = false;
 
 	Window window("OpenGL", 1920, 1080, 10.0);
 	window.SetCursorLocked(true);
@@ -27,8 +28,8 @@ int main()
 
 	Camera camera(glm::vec3(0.0f, 1.0f, 0.0f));
 
-	Material floorMat(glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
-	Material wallMat(glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(0.0f), 64.0f);
+	Material floorMat(glm::vec3(1.0f), glm::vec3(1.0f), 64.0f);
+	Material wallMat(glm::vec3(1.0f), glm::vec3(0.0f), 64.0f);
 		
 	std::vector<Object> objects;
 	
@@ -44,19 +45,19 @@ int main()
 
 	objects.push_back(Object(glm::vec3(-50.0f, 0.0f, -50.0f), glm::vec3(100.0f, 0.1f, 100.0f), "./res/textures/checkfloor.png", floorMat));
 
-	std::vector<PointLight> pointLights;
+	LightManager lightManager;
+
+	SpotLight spotLight(glm::vec3(20.0f, 50.0f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.0, 1.0f, 0.0f), 27.0f, 30.0f, glm::vec3(0.01f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	
 	//lights.push_back(PointLight(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.1f), glm::vec3(0.5f), glm::vec3(1.0f), 1.0f, 0.022f, 0.0019f));
-	pointLights.push_back(PointLight(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.1f), glm::vec3(0.5f), glm::vec3(1.0f), 1.0f, 0.014f, 0.0007f));
+	lightManager.AddPointLight(PointLight(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.5f), glm::vec3(1.0f), 1.0f, 0.014f, 0.0007f));
 
 	while (!window.ShouldClose()) {
-		framebuffer.Bind();
 		shader.SetUniform("view", camera.View());
 		lightShader.SetUniform("view", camera.View());
 		shader.SetUniform("viewPos", camera.GetPosition());
 
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glm::vec3 movement(0.0f, 0.0f, 0.0f);
 
@@ -85,18 +86,34 @@ int main()
 			shader.SetUniform("fullBright", fullBright);
 		}
 
+		if (window.KeyDown(GLFW_KEY_Q)) spotLightOn = !spotLightOn;
+
         camera.MovePosition(movement * 10.0f * window.GetDeltaTime());
 
         camera.AddPitchYaw(window.GetMouseOffset());
         camera.Update();
-	
-		for (int i = 0; i < pointLights.size(); i++) {
-			pointLights[i].SetShaderData(shader, i);
-			pointLights[i].Draw(lightShader);
+
+		// RENDER
+		//
+
+		lightManager.RenderShadowMaps(objects);
+		lightManager.BindShadowMaps(shader);
+
+		framebuffer.Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		lightManager.DrawPointLights(shader, lightShader);
+
+		if (spotLightOn) {
+			spotLight.SetPosition(camera.GetPosition() - camera.GetFront());
+			spotLight.SetDirection(camera.GetLookFront());
+
+			spotLight.SetShaderData(shader, 0);
+			shader.SetUniform("numOfSpotLights", 1);
 		}
-		shader.SetUniform("numOfPointLights", (int)pointLights.size());
 
 		for (int i = 0; i < objects.size(); i++) {
+			objects[i].SetShaderData(shader);
 			objects[i].Draw(shader);
 		}
 
@@ -115,9 +132,5 @@ int main()
 
 	for (int i = 0; i < objects.size(); i++) {
 		objects[i].Delete();
-	}
-
-	for (int i = 0; i < pointLights.size(); i++) {
-		pointLights[i].Delete();
 	}
 }

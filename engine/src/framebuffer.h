@@ -20,8 +20,8 @@ public:
 
 private:
 	GLuint fbo;
-	GLuint texture;
-	GLuint rbo;
+	GLuint colourBuffer;
+	GLuint depthBuffer;
 
 	int width;
 	int height;
@@ -42,8 +42,8 @@ public:
 
 private:
 	GLuint fbo;
-	GLuint texture;
-	GLuint rbo;
+	GLuint colourBuffer;
+	GLuint depthBuffer;
 
 	VAO vao;
 	Shader shader;
@@ -54,20 +54,39 @@ private:
 	int scr_height;
 };
 
-class ImageFramebuffer {
+class TextureFramebuffer {
 public:
-	ImageFramebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height, const char* vertPath, const char* fragPath);
-	~ImageFramebuffer();
-
-	void Draw();
+	TextureFramebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height, GLenum bufferFormat, GLenum bufferStorageFormat, GLenum attachmentType);
+	~TextureFramebuffer();
 
 	void Bind();
 	void UnBind();
 
+	void BindBufferTexture(GLenum texture);
+
 private:
-	GLuint framebufferTexture;
-	VAO vao;
-	Shader shader;
+	GLuint fbo;
+	GLuint buffer;
+
+	int width;
+	int height;
+	int scr_width;
+	int scr_height;
+};
+
+class CubemapFramebuffer {
+public:
+	CubemapFramebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height, GLenum bufferFormat, GLenum bufferStorageFormat, GLenum attachmentType);
+	~CubemapFramebuffer();
+
+	void Bind();
+	void UnBind();
+
+	void BindBufferTexture(GLenum texture);
+
+private:
+	GLuint fbo;
+	GLuint buffer;
 
 	int width;
 	int height;

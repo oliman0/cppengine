@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\shadowMap.cpp" />
     <ClCompile Include="src\camera.cpp" />
     <ClCompile Include="src\light.cpp" />
     <ClCompile Include="src\mesh.cpp" />
@@ -33,6 +34,7 @@
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\shadowMap.h" />
     <ClInclude Include="src\camera.h" />
     <ClInclude Include="src\light.h" />
     <ClInclude Include="src\mesh.h" />
@@ -46,6 +48,9 @@
     <ClInclude Include="src\window.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\depthCubemap.frag" />
+    <None Include="shaders\depthCubemap.geom" />
+    <None Include="shaders\depthCubemap.vert" />
     <None Include="shaders\light_cube.frag" />
     <None Include="shaders\light_cube.vert" />
     <None Include="shaders\screen_shader.frag" />

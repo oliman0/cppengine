@@ -23,7 +23,6 @@ struct Material {
 struct PointLight {
     vec3 position;
 
-    vec3 ambient;
     vec3 diffuse;
     vec3 specular;
 
@@ -72,18 +71,34 @@ uniform int numOfSpotLights;
 
 uniform vec3 viewPos;
 
+uniform samplerCube pointDepthMap;
+uniform float farPlane;
+
 const float NOISE_GRANULARITY = 0.5/255.0;
 
 float ditherRand(vec2 f) {
    return fract(sin(dot(f, vec2(12.9898,78.233))) * 43758.5453f);
 }
 
+float CalculatePointLightShadow(PointLight light, vec3 fragPosition, vec3 normal) {
+    // get vector between fragment position and light position
+    vec3 fragToLight = fragPosition - light.position;
+    // use the light to fragment vector to sample from the depth map    
+    float closestDepth = texture(pointDepthMap, fragToLight).r;
+    // it is currently in linear range between [0,1]. Re-transform back to original value
+    closestDepth *= farPlane;
+    // now get current linear depth as the length between the fragment and light position
+    float currentDepth = length(fragToLight);
+    // now test for shadows
+    float bias = max(0.05 * (1.0 - dot(normal, fragToLight)), 0.005); 
+    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}
+
 vec3 CalculatePointLight(PointLight light, Material mat, vec3 fragPosition, vec3 normal, vec4 valueD, vec4 valueS) {
     vec3 valueDgc = vec3(pow(valueD.r, 1/2.2), pow(valueD.g, 1/2.2), pow(valueD.b, 1/2.2));
     vec3 valueSgc = vec3(pow(valueS.r, 1/2.2), pow(valueS.g, 1/2.2), pow(valueS.b, 1/2.2));
-
-    // ambient
-    vec3 ambient = light.ambient * mat.ambient * valueDgc;
   	
     // diffuse 
     vec3 norm = normalize(normal);
@@ -98,14 +113,15 @@ vec3 CalculatePointLight(PointLight light, Material mat, vec3 fragPosition, vec3
     float spec = pow(max(dot(norm, halfwayDir), 0.0), mat.shininess);
     vec3 specular = light.specular * valueSgc * mat.specular * spec;
 
+    // attenuation
     float distance    = length(light.position - fragPosition);
     float attenuation = 1.0 / (light.constant + pow(light.linear * distance, 2.2) + pow(light.quadratic * (distance * distance), 2.2));  
 
-    ambient *= attenuation;  
     diffuse *= attenuation;
     specular *= attenuation; 
 
-    return ambient + diffuse + specular;
+    float shadow = CalculatePointLightShadow(light, fragPosition, normal);
+    return (1.0 - shadow) * (diffuse + specular);
 }
 
 vec3 CalculateDirectionalLight(DirectionalLight light, Material mat, vec3 fragPosition, vec3 normal, vec4 valueD, vec4 valueS) {
@@ -153,6 +169,7 @@ vec3 CalculateSpotLight(SpotLight light, Material mat, vec3 fragPosition, vec3 n
     float spec = pow(max(dot(norm, halfwayDir), 0.0), mat.shininess);
     vec3 specular = light.specular * valueSgc * mat.specular * spec;
 
+    // light intensity and edge smoothing
     float theta = dot(lightDir, normalize(-light.direction));
     float epsilon   = light.innerCutOff - light.outerCutOff;
     float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);    
@@ -160,6 +177,7 @@ vec3 CalculateSpotLight(SpotLight light, Material mat, vec3 fragPosition, vec3 n
     diffuse  *= intensity;
     specular *= intensity;
 
+    // attenuation
     float distance    = length(light.position - fragPosition);
     float attenuation = 1.0 / (light.constant + pow(light.linear * distance, 2.2) + pow(light.quadratic * (distance * distance), 2.2));  
 
@@ -167,7 +185,8 @@ vec3 CalculateSpotLight(SpotLight light, Material mat, vec3 fragPosition, vec3 n
     diffuse *= attenuation;
     specular *= attenuation; 
 
-    return ambient + diffuse + specular;
+    // extra dithering
+    return (ambient + diffuse + specular) + vec3(mix(-NOISE_GRANULARITY / 2.0, NOISE_GRANULARITY / 2.0, ditherRand(gl_FragCoord.xy / vec2(1920.0, 1080.0))));;
 }
 
 void main() {

@@ -112,15 +112,8 @@ void Mesh::Draw(Shader& shader) {
     glm::mat4 model(1.0f);
     model = glm::translate(model, position);
     shader.SetUniform("model", &model);
-    shader.SetUniform("colour", &colour);
-    shader.SetUniform("usingTexture", usingTexture);
 
     vao.Bind();
-
-    if (usingTexture) {
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
-    }
 
     glDrawArrays(GL_TRIANGLES, 0, vao.NumOfVertices());
 
@@ -128,6 +121,16 @@ void Mesh::Draw(Shader& shader) {
 
     if (usingTexture) {
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+void Mesh::SetShaderData(Shader& shader) {
+    shader.SetUniform("colour", &colour);
+    shader.SetUniform("usingTexture", usingTexture);
+
+    if (usingTexture) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
     }
 }
 

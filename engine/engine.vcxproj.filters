@@ -51,6 +51,9 @@
     <ClCompile Include="src\light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\shadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\window.h">
@@ -86,6 +89,9 @@
     <ClInclude Include="src\light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\shadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\light_cube.frag" />
@@ -96,5 +102,8 @@
     <None Include="shaders\shader.vert" />
     <None Include="shaders\ui_shader.frag" />
     <None Include="shaders\ui_shader.vert" />
+    <None Include="shaders\depthCubemap.frag" />
+    <None Include="shaders\depthCubemap.geom" />
+    <None Include="shaders\depthCubemap.vert" />
   </ItemGroup>
 </Project>

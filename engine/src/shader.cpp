@@ -55,7 +55,7 @@ Shader::Shader(const char* vertPath, const char* fragPath) {
 	glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
 	if (success != GL_TRUE) {
 		glGetShaderInfoLog(fragShader, 512, nullptr, elog);
-		std::cerr << "VERTEX SHADER ERROR:\n" << elog << std::endl;
+		std::cerr << "FRAGMENT SHADER ERROR:\n" << elog << std::endl;
 	}
 
 	// link shaders
@@ -72,6 +72,108 @@ Shader::Shader(const char* vertPath, const char* fragPath) {
 	}
 	glDeleteShader(vertShader);
 	glDeleteShader(fragShader);
+}
+
+Shader::Shader(const char* vertPath, const char* fragPath, const char* geomPath) {
+	std::string vertSrc;
+	std::ifstream fileStream(vertPath, std::ios::in);
+	std::ostringstream stringStream;
+
+	if (fileStream) {
+		stringStream << fileStream.rdbuf();
+		vertSrc = stringStream.str();
+	}
+	else {
+		std::cerr << "Failed to open Vertex Shader file." << std::endl;
+	}
+
+	std::string fragSrc;
+	fileStream = std::ifstream(fragPath, std::ios::in);
+
+	if (fileStream) {
+		stringStream = std::ostringstream();
+		stringStream << fileStream.rdbuf();
+		fragSrc = stringStream.str();
+	}
+	else {
+		std::cerr << "Failed to open Fragment Shader file." << std::endl;
+	}
+
+	std::string geomSrc;
+	fileStream = std::ifstream(geomPath, std::ios::in);
+
+	if (fileStream) {
+		stringStream = std::ostringstream();
+		stringStream << fileStream.rdbuf();
+		geomSrc = stringStream.str();
+	}
+	else {
+		std::cerr << "Failed to open Geometry Shader file." << std::endl;
+	}
+
+	const GLchar* src[1];
+
+	//vertex shader
+	src[0] = vertSrc.c_str();
+
+	GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertShader, 1, src, nullptr);
+	glCompileShader(vertShader);
+
+	// check for shader compile errors
+	GLint success = GL_FALSE;
+	GLchar elog[512] = { 0 };
+
+	glGetShaderiv(vertShader, GL_COMPILE_STATUS, &success);
+	if (success != GL_TRUE) {
+		glGetShaderInfoLog(vertShader, 512, nullptr, elog);
+		std::cerr << "VERTEX SHADER ERROR:\n" << elog << std::endl;
+	}
+
+	// fragment shader
+	src[0] = fragSrc.c_str();
+
+	GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragShader, 1, src, nullptr);
+	glCompileShader(fragShader);
+
+	// check for shader compile errors
+	glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
+	if (success != GL_TRUE) {
+		glGetShaderInfoLog(fragShader, 512, nullptr, elog);
+		std::cerr << "FRAGMENT SHADER ERROR:\n" << elog << std::endl;
+	}
+
+	// geometry shader
+	src[0] = geomSrc.c_str();
+
+	GLuint geomShader = glCreateShader(GL_GEOMETRY_SHADER);
+	glShaderSource(geomShader, 1, src, nullptr);
+	glCompileShader(geomShader);
+
+	// check for shader compile errors
+	glGetShaderiv(geomShader, GL_COMPILE_STATUS, &success);
+	if (success != GL_TRUE) {
+		glGetShaderInfoLog(geomShader, 512, nullptr, elog);
+		std::cerr << "GEOMERTY SHADER ERROR:\n" << elog << std::endl;
+	}
+
+	// link shaders
+	shaderID = glCreateProgram();
+	glAttachShader(shaderID, vertShader);
+	glAttachShader(shaderID, fragShader);
+	glAttachShader(shaderID, geomShader);
+	glLinkProgram(shaderID);
+
+	// check for linking errors
+	glGetProgramiv(shaderID, GL_LINK_STATUS, &success);
+	if (success != GL_TRUE) {
+		glGetProgramInfoLog(shaderID, 512, nullptr, elog);
+		std::cerr << "PROGRAM ERROR:\n" << elog << std::endl;
+	}
+	glDeleteShader(vertShader);
+	glDeleteShader(fragShader);
+	glDeleteShader(geomShader);
 }
 
 Shader::Shader(const char* sPath, GLenum shaderType) {

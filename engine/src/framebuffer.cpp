@@ -6,23 +6,19 @@ Framebuffer::Framebuffer(GLint width, GLint height, GLint scr_width, GLint scr_h
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glGenRenderbuffers(1, &colourBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, colourBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB, scr_width, scr_height);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colourBuffer);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
-
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glGenRenderbuffers(1, &depthBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, scr_width, scr_height);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cerr << "framebuffer failed" << std::endl;
@@ -33,8 +29,8 @@ Framebuffer::Framebuffer(GLint width, GLint height, GLint scr_width, GLint scr_h
 
 Framebuffer::~Framebuffer() {
     glDeleteFramebuffers(1, &fbo);
-    glDeleteRenderbuffers(1, &rbo);
-    glDeleteTextures(1, &texture);
+    glDeleteRenderbuffers(1, &depthBuffer);
+    glDeleteRenderbuffers(1, &colourBuffer);
 }
 
 void Framebuffer::Blit() {
@@ -58,8 +54,8 @@ PostProcessingFramebuffer::PostProcessingFramebuffer(GLint width, GLint height, 
     glGenFramebuffers(1, &fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glGenTextures(1, &colourBuffer);
+    glBindTexture(GL_TEXTURE_2D, colourBuffer);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, scr_width, scr_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 
@@ -67,14 +63,18 @@ PostProcessingFramebuffer::PostProcessingFramebuffer(GLint width, GLint height, 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colourBuffer, 0);
 
-    glGenRenderbuffers(1, &rbo);
-    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, scr_width, scr_height);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    glGenTextures(1, &depthBuffer);
+    glBindTexture(GL_TEXTURE_2D, depthBuffer);
 
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, scr_width, scr_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthBuffer, 0);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cerr << "framebuffer failed" << std::endl;
@@ -98,8 +98,8 @@ PostProcessingFramebuffer::PostProcessingFramebuffer(GLint width, GLint height, 
 
 PostProcessingFramebuffer::~PostProcessingFramebuffer() {
     glDeleteFramebuffers(1, &fbo);
-    glDeleteRenderbuffers(1, &rbo);
-    glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &depthBuffer);
+    glDeleteTextures(1, &colourBuffer);
 }
 
 void PostProcessingFramebuffer::Blit() {
@@ -115,7 +115,7 @@ void PostProcessingFramebuffer::Draw() {
     shader.Use();
     vao.Bind();
     glDisable(GL_DEPTH_TEST);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, colourBuffer);
     glDrawArrays(GL_TRIANGLES, 0, vao.NumOfVertices());
 
     glEnable(GL_DEPTH_TEST);
@@ -131,64 +131,86 @@ void PostProcessingFramebuffer::UnBind() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-// IMAGE TEXTURE FRAMEBUFFER
+// TEXTURE FRAMEBUFFER
 
-ImageFramebuffer::ImageFramebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height, const char* vertPath, const char* fragPath) : width(width), height(height), scr_width(scr_width), scr_height(scr_height), shader(vertPath, fragPath) {
-    glGenTextures(1, &framebufferTexture);
-    glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+TextureFramebuffer::TextureFramebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height, GLenum bufferFormat, GLenum bufferStorageFormat, GLenum attachmentType) : width(width), height(height), scr_width(scr_width), scr_height(scr_height) {
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glGenTextures(1, &buffer);
+    glBindTexture(GL_TEXTURE_2D, buffer);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, bufferFormat, scr_width, scr_height, 0, bufferFormat, bufferStorageFormat, nullptr);
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA,
-        GL_FLOAT, nullptr);
-
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        std::cerr << "framebuffer failed" << std::endl;
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    GLfloat vertices[] = {
-        -1.0f, 1.0f, 0.0f, 1.0f,
-            -1.0f, -1.0f, 0.0f, 0.0f,
-            1.0f, -1.0f, 1.0f, 0.0f,
-
-            -1.0f, 1.0f, 0.0f, 1.0f,
-            1.0f, -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 1.0f, 1.0f
-    };
-    
-    int sizes[2] = { 2, 2 };
-    vao = VAO(vertices, 24, 6, 2, sizes);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, buffer, 0);
 }
 
-ImageFramebuffer::~ImageFramebuffer() {
-    glDeleteTextures(1, &framebufferTexture);
+TextureFramebuffer::~TextureFramebuffer() {
+    glDeleteFramebuffers(1, &fbo);
+    glDeleteTextures(1, &buffer);
 }
 
-void ImageFramebuffer::Draw() {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    shader.Use();
-    vao.Bind();
-    glDisable(GL_DEPTH_TEST);
-    glBindTexture(GL_TEXTURE_2D, framebufferTexture);
-    glDrawArrays(GL_TRIANGLES, 0, vao.NumOfVertices());
-
-    glEnable(GL_DEPTH_TEST);
-}
-
-void ImageFramebuffer::Bind() {
+void TextureFramebuffer::Bind() {
     glViewport(0, 0, width, height);
-    glBindImageTexture(0, framebufferTexture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 }
 
-void ImageFramebuffer::UnBind() {
+void TextureFramebuffer::UnBind() {
     glViewport(0, 0, scr_width, scr_height);
-    glBindImageTexture(0, 0, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void TextureFramebuffer::BindBufferTexture(GLenum texture) {
+    glActiveTexture(texture);
+    glBindTexture(GL_TEXTURE_2D, buffer);
+}
+
+// CUBEMAP FRAMEBUFFER
+
+CubemapFramebuffer::CubemapFramebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height, GLenum bufferFormat, GLenum bufferStorageFormat, GLenum attachmentType) : width(width), height(height), scr_width(scr_width), scr_height(scr_height) {
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glGenTextures(1, &buffer);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, buffer);
+
+    for (unsigned int i = 0; i < 6; ++i)
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, bufferFormat,
+            scr_width, scr_width, 0, bufferFormat, bufferStorageFormat, nullptr);
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+    glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, buffer, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        std::cerr << "cubemap framebuffer failed" << std::endl;
+    }
+}
+
+CubemapFramebuffer::~CubemapFramebuffer() {
+    glDeleteFramebuffers(1, &fbo);
+    glDeleteTextures(1, &buffer);
+}
+
+void CubemapFramebuffer::Bind() {
+    glViewport(0, 0, width, height);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+}
+
+void CubemapFramebuffer::UnBind() {
+    glViewport(0, 0, scr_width, scr_height);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void CubemapFramebuffer::BindBufferTexture(GLenum texture) {
+    glActiveTexture(texture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, buffer);
 }

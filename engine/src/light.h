@@ -1,29 +1,37 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
+#include <vector>
+
 #include "mesh.h"
+#include "object.h"
+#include "shadowMap.h"
 
 class PointLight : public Mesh {
 public:
-	PointLight(glm::vec3 position, glm::vec3 size, glm::vec4 meshColour, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float attenuationConstant, float attenuationLinear, float attenuationQuadratic);
+	PointLight(glm::vec3 position, glm::vec3 size, glm::vec4 meshColour, glm::vec3 diffuse, glm::vec3 specular, float attenuationConstant, float attenuationLinear, float attenuationQuadratic);
 	~PointLight() {}
 
 	void SetShaderData(Shader& shader, unsigned int lightNum);
+	void SetShaderMeshData(Shader& shader);
+
+	void SetShadowTransforms(Shader& shader);
 
 private:
-	glm::vec3 ambient;
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 
 	float attenuationConstant;
 	float attenuationLinear;
 	float attenuationQuadratic;
+
+	std::vector<glm::mat4> shadowTransforms;
 };
 
-class DirectionalLight {
+class GlobalLight {
 public:
-	DirectionalLight(glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular);
-	~DirectionalLight() {}
+	GlobalLight(glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular);
+	~GlobalLight() {}
 
 	void SetShaderData(Shader& shader);
 
@@ -56,6 +64,30 @@ private:
 	float attenuationConstant;
 	float attenuationLinear;
 	float attenuationQuadratic;
+};
+
+class LightManager {
+public:
+	LightManager();
+	~LightManager();
+
+	void RenderShadowMaps(std::vector<Object>& objects);
+
+	void BindShadowMaps(Shader& shader);
+
+	void AddPointLight(PointLight light);
+
+	void DrawPointLights(Shader& shader, Shader& lightShader);
+
+private:
+	std::vector<PointLight> pointLights;
+	std::vector<SpotLight> spotLights;
+	GlobalLight globalLight;
+
+	float farPlane;
+
+	ShadowCubemap pointLightShadowMap;
+	//ShadowMap directionalShadowMap;
 };
 
 #endif

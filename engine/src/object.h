@@ -4,13 +4,12 @@
 #include "mesh.h"
 
 struct Material {
-	Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess, GLuint diffuseTexture, GLuint specularTexture);
-	Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess);
+	Material(glm::vec3 diffuse, glm::vec3 specular, float shininess, GLuint diffuseTexture, GLuint specularTexture);
+	Material(glm::vec3 diffuse, glm::vec3 specular, float shininess);
 
 	GLuint diffuseTexture;
 	GLuint specularTexture;
 
-	glm::vec3 ambient;
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 
@@ -23,7 +22,7 @@ public:
 	Object(glm::vec3 postition, glm::vec3 size, glm::vec4 colour, Material material);
 	~Object() {}
 
-	void Draw(Shader& shader);
+	void SetShaderData(Shader& shader);
 
 private:
 	Material material;

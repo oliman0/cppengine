@@ -13,13 +13,14 @@ class Mesh
 {
 public:
 	Mesh(glm::vec3 postition, glm::vec3 size, const char* texture);
-	Mesh(glm::vec3 postition, glm::vec3 size, const char* texture, float texRepeat);
+	//Mesh(glm::vec3 postition, glm::vec3 size, const char* texture, float texRepeat);
 	Mesh(glm::vec3 postition, glm::vec3 size, glm::vec4 colour);
 	~Mesh() {}
 
 	void Delete();
 
 	void Draw(Shader& shader);
+	void SetShaderData(Shader& shader);
 
 	glm::vec3 GetPosition();
 	void SetPosition(glm::vec3 position);
