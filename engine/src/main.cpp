@@ -5,7 +5,7 @@
 #include "window.h"
 #include "framebuffer.h"
 #include "object.h"
-#include "light.h"
+#include "lightsys.h"
 #include "shader.h"
 #include "camera.h"
 #include "ui.h"
@@ -45,12 +45,12 @@ int main()
 
 	objects.push_back(Object(glm::vec3(-50.0f, 0.0f, -50.0f), glm::vec3(100.0f, 0.1f, 100.0f), "./res/textures/checkfloor.png", floorMat));
 
-	LightManager lightManager;
+	LightManager lightManager(1024, 1024);
 
 	SpotLight spotLight(glm::vec3(20.0f, 50.0f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.0, 1.0f, 0.0f), 27.0f, 30.0f, glm::vec3(0.01f), glm::vec3(1.0f), glm::vec3(1.0f), 1.0f, 0.045f, 0.0075f);
 	
-	//lights.push_back(PointLight(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.1f), glm::vec3(0.5f), glm::vec3(1.0f), 1.0f, 0.022f, 0.0019f));
-	lightManager.AddPointLight(PointLight(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.5f), glm::vec3(1.0f), 1.0f, 0.014f, 0.0007f));
+	lightManager.AddPointLight(PointLight(glm::vec3(20.0f, 7.5f, 5.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.5f), glm::vec3(1.0f), 50.0f));
+	lightManager.AddPointLight(PointLight(glm::vec3(0.0f, 7.5f, -40.0f), glm::vec3(1.0f), glm::vec4(1.0f), glm::vec3(0.5f), glm::vec3(1.0f), 50.0f));
 
 	while (!window.ShouldClose()) {
 		shader.SetUniform("view", camera.View());

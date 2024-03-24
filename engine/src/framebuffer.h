@@ -11,12 +11,16 @@
 class Framebuffer {
 public:
 	Framebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height);
+	Framebuffer(GLint width, GLint height);
 	~Framebuffer();
 
 	void Blit();
 
 	void Bind();
 	void UnBind();
+
+	int GetWidth();
+	int GetHeight();
 
 private:
 	GLuint fbo;
@@ -32,6 +36,7 @@ private:
 class PostProcessingFramebuffer {
 public:
 	PostProcessingFramebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height, const char* vertPath, const char* fragPath);
+	PostProcessingFramebuffer(GLint width, GLint height, const char* vertPath, const char* fragPath);
 	~PostProcessingFramebuffer();
 
 	void Draw();
@@ -39,6 +44,9 @@ public:
 
 	void Bind();
 	void UnBind();
+
+	int GetWidth();
+	int GetHeight();
 
 private:
 	GLuint fbo;
@@ -54,6 +62,7 @@ private:
 	int scr_height;
 };
 
+// TODO: Add other constructor
 class TextureFramebuffer {
 public:
 	TextureFramebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height, GLenum bufferFormat, GLenum bufferStorageFormat, GLenum attachmentType);
@@ -77,12 +86,16 @@ private:
 class CubemapFramebuffer {
 public:
 	CubemapFramebuffer(GLint width, GLint height, GLint scr_width, GLint scr_height, GLenum bufferFormat, GLenum bufferStorageFormat, GLenum attachmentType);
+	CubemapFramebuffer(GLint width, GLint height, GLenum bufferFormat, GLenum bufferStorageFormat, GLenum attachmentType);
 	~CubemapFramebuffer();
 
 	void Bind();
 	void UnBind();
 
 	void BindBufferTexture(GLenum texture);
+
+	int GetWidth();
+	int GetHeight();
 
 private:
 	GLuint fbo;

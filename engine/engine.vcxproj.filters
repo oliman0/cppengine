@@ -51,7 +51,7 @@
     <ClCompile Include="src\light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\shadowMap.cpp">
+    <ClCompile Include="src\lightsys.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -89,7 +89,10 @@
     <ClInclude Include="src\light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\shadowMap.h">
+    <ClInclude Include="src\lightsys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

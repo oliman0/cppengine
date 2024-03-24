@@ -5,11 +5,11 @@
 
 #include "mesh.h"
 #include "object.h"
-#include "shadowMap.h"
 
 class PointLight : public Mesh {
 public:
-	PointLight(glm::vec3 position, glm::vec3 size, glm::vec4 meshColour, glm::vec3 diffuse, glm::vec3 specular, float attenuationConstant, float attenuationLinear, float attenuationQuadratic);
+	PointLight(glm::vec3 position, glm::vec3 size, glm::vec4 meshColour, glm::vec3 diffuse, glm::vec3 specular, float intensity);
+	PointLight(glm::vec3 position, glm::vec3 size, glm::vec4 meshColour, glm::vec3 diffuse, glm::vec3 specular, float intensity, float bias, float biasMin);
 	~PointLight() {}
 
 	void SetShaderData(Shader& shader, unsigned int lightNum);
@@ -21,9 +21,10 @@ private:
 	glm::vec3 diffuse;
 	glm::vec3 specular;
 
-	float attenuationConstant;
-	float attenuationLinear;
-	float attenuationQuadratic;
+	float intensity;
+
+	float bias;
+	float biasMin;
 
 	std::vector<glm::mat4> shadowTransforms;
 };
@@ -64,30 +65,6 @@ private:
 	float attenuationConstant;
 	float attenuationLinear;
 	float attenuationQuadratic;
-};
-
-class LightManager {
-public:
-	LightManager();
-	~LightManager();
-
-	void RenderShadowMaps(std::vector<Object>& objects);
-
-	void BindShadowMaps(Shader& shader);
-
-	void AddPointLight(PointLight light);
-
-	void DrawPointLights(Shader& shader, Shader& lightShader);
-
-private:
-	std::vector<PointLight> pointLights;
-	std::vector<SpotLight> spotLights;
-	GlobalLight globalLight;
-
-	float farPlane;
-
-	ShadowCubemap pointLightShadowMap;
-	//ShadowMap directionalShadowMap;
 };
 
 #endif

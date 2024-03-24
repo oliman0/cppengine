@@ -1,53 +1,17 @@
 #include "light.h"
 
-// Light System
-
-LightManager::LightManager() : globalLight(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)), farPlane(100), pointLightShadowMap(1024, 1024, 1, 100)/*, directionalShadowMap(1024, 1024)*/ {}
-
-LightManager::~LightManager() {
-	for (int i = 0; i < pointLights.size(); i++) {
-		pointLights[i].Delete();
-	}
-}
-
-void LightManager::RenderShadowMaps(std::vector<Object>& objects) {
-	glClear(GL_DEPTH_BUFFER_BIT);
-	pointLightShadowMap.Bind();
-
-	pointLightShadowMap.SetDepthShaderData();
-	for (int i = 0; i < pointLights.size(); i++) {
-		pointLights[i].SetShadowTransforms(pointLightShadowMap.GetDepthShader());
-
-		for (int i = 0; i < objects.size(); i++) {
-			objects[i].Draw(pointLightShadowMap.GetDepthShader());
-		}
-	}
-
-	pointLightShadowMap.UnBind();
-}
-
-void LightManager::BindShadowMaps(Shader& shader) {
-	shader.SetUniform("pointDepthMap", 2);
-	shader.SetUniform("farPlane", farPlane);
-	
-	pointLightShadowMap.BindBufferTexture(GL_TEXTURE2);
-}
-
-void LightManager::AddPointLight(PointLight light) { pointLights.push_back(light); }
-
-void LightManager::DrawPointLights(Shader& shader, Shader& lightShader) {
-	for (int i = 0; i < pointLights.size(); i++) {
-		pointLights[i].SetShaderData(shader, i);
-		pointLights[i].SetShaderMeshData(lightShader);
-		pointLights[i].Draw(lightShader);
-	}
-	shader.SetUniform("numOfPointLights", (int)pointLights.size());
-}
-
 // Point Light
 
-PointLight::PointLight(glm::vec3 position, glm::vec3 size, glm::vec4 colour, glm::vec3 diffuse, glm::vec3 specular, float attenuationConstant, float attenuationLinear, float attenuationQuadratic) : Mesh(position, size, colour), diffuse(diffuse), specular(specular),
-																																																			   attenuationConstant(attenuationConstant), attenuationLinear(attenuationLinear), attenuationQuadratic(attenuationQuadratic) {
+PointLight::PointLight(glm::vec3 position, glm::vec3 size, glm::vec4 colour, glm::vec3 diffuse, glm::vec3 specular, float intensity) : Mesh(position, size, colour), diffuse(diffuse), specular(specular), intensity(intensity), bias(0.05f), biasMin(0.05f) {
+	shadowTransforms.push_back(glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+	shadowTransforms.push_back(glm::lookAt(position, position + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+	shadowTransforms.push_back(glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+	shadowTransforms.push_back(glm::lookAt(position, position + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+}
+
+PointLight::PointLight(glm::vec3 position, glm::vec3 size, glm::vec4 colour, glm::vec3 diffuse, glm::vec3 specular, float intensity, float bias, float biasMin) : Mesh(position, size, colour), diffuse(diffuse), specular(specular), intensity(intensity), bias(bias), biasMin(biasMin) {
 	shadowTransforms.push_back(glm::lookAt(position, position + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 	shadowTransforms.push_back(glm::lookAt(position, position + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 	shadowTransforms.push_back(glm::lookAt(position, position + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
@@ -62,9 +26,10 @@ void PointLight::SetShaderData(Shader& shader, unsigned int lightNum) {
 	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].diffuse", diffuse);
 	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].specular", specular);
 
-	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].constant", attenuationConstant);
-	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].linear", attenuationLinear);
-	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].quadratic", attenuationQuadratic);
+	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].intensity", intensity);
+
+	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].bias", bias);
+	shader.SetUniform("pointLights[" + std::to_string(lightNum) + "].biasMin", biasMin);
 }
 
 void PointLight::SetShaderMeshData(Shader& shader) { Mesh::SetShaderData(shader); }

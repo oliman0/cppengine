@@ -27,6 +27,8 @@ Framebuffer::Framebuffer(GLint width, GLint height, GLint scr_width, GLint scr_h
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+Framebuffer::Framebuffer(GLint width, GLint height) : Framebuffer(width, height, width, height) {}
+
 Framebuffer::~Framebuffer() {
     glDeleteFramebuffers(1, &fbo);
     glDeleteRenderbuffers(1, &depthBuffer);
@@ -47,6 +49,9 @@ void Framebuffer::UnBind() {
     glViewport(0, 0, scr_width, scr_height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+int Framebuffer::GetWidth() { return width; }
+int Framebuffer::GetHeight() { return height; }
 
 // POST PROCESSING FRAMEBUFFER
 
@@ -96,6 +101,8 @@ PostProcessingFramebuffer::PostProcessingFramebuffer(GLint width, GLint height, 
     vao = VAO(vertices, 24, 6, 2, sizes);
 }
 
+PostProcessingFramebuffer::PostProcessingFramebuffer(GLint width, GLint height, const char* vertPath, const char* fragPath) : PostProcessingFramebuffer(width, height, width, height, vertPath, fragPath) {}
+
 PostProcessingFramebuffer::~PostProcessingFramebuffer() {
     glDeleteFramebuffers(1, &fbo);
     glDeleteTextures(1, &depthBuffer);
@@ -130,6 +137,9 @@ void PostProcessingFramebuffer::UnBind() {
     glViewport(0, 0, scr_width, scr_height);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+int PostProcessingFramebuffer::GetWidth() { return width; }
+int PostProcessingFramebuffer::GetHeight() { return height; }
 
 // TEXTURE FRAMEBUFFER
 
@@ -187,6 +197,9 @@ CubemapFramebuffer::CubemapFramebuffer(GLint width, GLint height, GLint scr_widt
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
     glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, buffer, 0);
+
+    // TODO: need to add a better way of managing attachemnts that
+    //       you may or may not want.
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
 
@@ -194,6 +207,8 @@ CubemapFramebuffer::CubemapFramebuffer(GLint width, GLint height, GLint scr_widt
         std::cerr << "cubemap framebuffer failed" << std::endl;
     }
 }
+
+CubemapFramebuffer::CubemapFramebuffer(GLint width, GLint height, GLenum bufferFormat, GLenum bufferStorageFormat, GLenum attachmentType) : CubemapFramebuffer(width, height, width, height, bufferFormat, bufferStorageFormat, attachmentType) {}
 
 CubemapFramebuffer::~CubemapFramebuffer() {
     glDeleteFramebuffers(1, &fbo);
@@ -214,3 +229,6 @@ void CubemapFramebuffer::BindBufferTexture(GLenum texture) {
     glActiveTexture(texture);
     glBindTexture(GL_TEXTURE_CUBE_MAP, buffer);
 }
+
+int CubemapFramebuffer::GetWidth() { return width; }
+int CubemapFramebuffer::GetHeight() { return height; }

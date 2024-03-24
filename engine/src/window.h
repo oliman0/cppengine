@@ -3,6 +3,11 @@
 
 #include <iostream>
 
+#pragma comment(lib, "glfw3.lib")
+#pragma comment(lib, "User32.lib")
+#pragma comment(lib, "gdi32.lib")
+#pragma comment(lib, "shell32.lib")
+
 #include <GLAD/glad.h>
 #include <GLFW/glfw3.h>
 #include <GLM/glm.hpp>

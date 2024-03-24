@@ -26,6 +26,9 @@
 *.a
 *.lib
 
+# Dependencies
+!glfw3.lib
+
 # Executables
 *.exe
 *.out

@@ -26,9 +26,10 @@ struct PointLight {
     vec3 diffuse;
     vec3 specular;
 
-    float constant;
-    float linear;
-    float quadratic;
+    float intensity;
+
+    float bias;
+    float biasMin;
 };
 
 struct DirectionalLight {
@@ -90,7 +91,7 @@ float CalculatePointLightShadow(PointLight light, vec3 fragPosition, vec3 normal
     // now get current linear depth as the length between the fragment and light position
     float currentDepth = length(fragToLight);
     // now test for shadows
-    float bias = max(0.05 * (1.0 - dot(normal, fragToLight)), 0.005); 
+    float bias = max(light.bias * (1.0 - dot(normal, fragToLight)), light.biasMin);
     float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
 
     return shadow;
@@ -114,8 +115,9 @@ vec3 CalculatePointLight(PointLight light, Material mat, vec3 fragPosition, vec3
     vec3 specular = light.specular * valueSgc * mat.specular * spec;
 
     // attenuation
-    float distance    = length(light.position - fragPosition);
-    float attenuation = 1.0 / (light.constant + pow(light.linear * distance, 2.2) + pow(light.quadratic * (distance * distance), 2.2));  
+    float distance = length(light.position - fragPosition);
+    float cosTerm = dot(light.position - fragPosition, normal);
+    float attenuation = (1 / 3.1415926) * cosTerm * (light.intensity / (distance * distance));
 
     diffuse *= attenuation;
     specular *= attenuation; 
