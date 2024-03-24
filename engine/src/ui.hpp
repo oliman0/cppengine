@@ -9,9 +9,9 @@
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 
-#include "vao.h"
-#include "shader.h"
-#include "texture.h"
+#include "vao.hpp"
+#include "shader.hpp"
+#include "texture.hpp"
 
 struct FontCharacter {
 	FontCharacter(GLuint texID, GLfloat width, GLfloat height);

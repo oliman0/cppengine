@@ -6,7 +6,7 @@
 
 #include <GLAD/glad.h>
 
-#include "stbi.h"
+#include "stbi.hpp"
 
 GLuint CreateTexture(const char* path, GLenum textureFormat = GL_RGBA);
 

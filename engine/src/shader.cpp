@@ -1,4 +1,4 @@
-#include "shader.h"
+#include "shader.hpp"
 
 Shader::Shader(const char* vertPath, const char* fragPath) {
 	std::string vertSrc;

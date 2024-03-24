@@ -34,19 +34,19 @@
     <ClCompile Include="src\window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\config.h" />
-    <ClInclude Include="src\lightsys.h" />
-    <ClInclude Include="src\camera.h" />
-    <ClInclude Include="src\light.h" />
-    <ClInclude Include="src\mesh.h" />
-    <ClInclude Include="src\framebuffer.h" />
-    <ClInclude Include="src\object.h" />
-    <ClInclude Include="src\shader.h" />
-    <ClInclude Include="src\stbi.h" />
-    <ClInclude Include="src\texture.h" />
-    <ClInclude Include="src\ui.h" />
-    <ClInclude Include="src\vao.h" />
-    <ClInclude Include="src\window.h" />
+    <ClInclude Include="src\config.hpp" />
+    <ClInclude Include="src\lightsys.hpp" />
+    <ClInclude Include="src\camera.hpp" />
+    <ClInclude Include="src\light.hpp" />
+    <ClInclude Include="src\mesh.hpp" />
+    <ClInclude Include="src\framebuffer.hpp" />
+    <ClInclude Include="src\object.hpp" />
+    <ClInclude Include="src\shader.hpp" />
+    <ClInclude Include="src\stbi.hpp" />
+    <ClInclude Include="src\texture.hpp" />
+    <ClInclude Include="src\ui.hpp" />
+    <ClInclude Include="src\vao.hpp" />
+    <ClInclude Include="src\window.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\depthCubemap.frag" />
@@ -125,6 +125,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "mesh.h"
-#include "object.h"
+#include "mesh.hpp"
+#include "object.hpp"
 
 class PointLight : public Mesh {
 public:

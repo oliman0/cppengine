@@ -5,8 +5,8 @@
 
 #include <GLAD/glad.h>
 
-#include "vao.h"
-#include "shader.h"
+#include "vao.hpp"
+#include "shader.hpp"
 
 class Framebuffer {
 public:

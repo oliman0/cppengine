@@ -5,9 +5,9 @@
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 
-#include "shader.h"
-#include "vao.h"
-#include "texture.h"
+#include "shader.hpp"
+#include "vao.hpp"
+#include "texture.hpp"
 
 class Mesh
 {

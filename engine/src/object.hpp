@@ -1,7 +1,7 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include "mesh.h"
+#include "mesh.hpp"
 
 struct Material {
 	Material(glm::vec3 diffuse, glm::vec3 specular, float shininess, GLuint diffuseTexture, GLuint specularTexture);

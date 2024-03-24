@@ -1,4 +1,4 @@
-#include "lightsys.h"
+#include "lightsys.hpp"
 
 LightManager::LightManager(GLint shadowMapWidth, GLint shadowMapHeight) : globalLight(glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f)), farPlane(100),
 																															pointLightShadowMap(shadowMapWidth, shadowMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT, GL_DEPTH_ATTACHMENT),

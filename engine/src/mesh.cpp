@@ -1,4 +1,4 @@
-#include "mesh.h"
+#include "mesh.hpp"
 
 Mesh::Mesh(glm::vec3 postition, glm::vec3 size, const char* texture) : position(postition),
                                                                         colour(1.0, 1.0, 1.0, 1.0), usingTexture(true), texture(CreateTexture(texture, GL_SRGB_ALPHA)) {

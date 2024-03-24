@@ -1,9 +1,9 @@
 #ifndef LIGHTSYS_H
 #define LIGHTSYS_H
 
-#include "shader.h"
-#include "light.h"
-#include "framebuffer.h"
+#include "shader.hpp"
+#include "light.hpp"
+#include "framebuffer.hpp"
 
 class LightManager {
 public:

@@ -2,13 +2,13 @@
 
 #include <vector>
 
-#include "window.h"
-#include "framebuffer.h"
-#include "object.h"
-#include "lightsys.h"
-#include "shader.h"
-#include "camera.h"
-#include "ui.h"
+#include "window.hpp"
+#include "framebuffer.hpp"
+#include "object.hpp"
+#include "lightsys.hpp"
+#include "shader.hpp"
+#include "camera.hpp"
+#include "ui.hpp"
 
 int main()
 {

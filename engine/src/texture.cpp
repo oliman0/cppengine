@@ -1,4 +1,4 @@
-#include "texture.h"
+#include "texture.hpp"
 
 GLuint CreateTexture(const char* path, GLenum textureFormat) {
     GLuint texture_id = 0;

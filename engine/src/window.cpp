@@ -1,4 +1,4 @@
-#include "window.h"
+#include "window.hpp"
 
 Window::Window(const char* title, GLint width, GLint height, float sensitivity) : windowSize(glm::vec2(width, height)), countFrames(0), cursorLocked(false), deltaTime(0.0f), fps(0), lastFrameTime(0.0f), lastTime(0.0f), mouseOffset(glm::vec2(0.0f, 0.0f)), mousePosition(glm::vec2(0.0f, 0.0f)), scrollWheelOffsetX(0.0f), scrollWheelOffsetY(0.0f), sensitivity(sensitivity) {
     for (int i = 0; i < 1024; i++) { keys[i] = false; }

@@ -1,4 +1,4 @@
-#include "ui.h"
+#include "ui.hpp"
 
 FontCharacter::FontCharacter(GLuint texID, GLfloat width, GLfloat height) : textureID(texID), width(width), height(height) {}
 void FontCharacter::Delete() { glDeleteTextures(1, &textureID); }

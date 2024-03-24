@@ -1,4 +1,4 @@
-#include "object.h"
+#include "object.hpp"
 
 Material::Material(glm::vec3 diffuse, glm::vec3 specular, float shininess, GLuint diffuseTexture, GLuint specularTexture) : diffuseTexture(diffuseTexture), specularTexture(specularTexture), shininess(shininess), diffuse(diffuse), specular(specular) {}
 
